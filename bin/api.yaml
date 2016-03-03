@@ -1,0 +1,240 @@
+# Example YAML to get you started quickly.
+# Be aware that YAML has indentation based scoping.
+# Code completion support is available so start typing for available options.
+swagger: '2.0'
+
+# This is your document metadata
+info:
+  version: "1.0.0"
+  title: Project & Task API
+
+paths:
+  /project:
+    put:
+      description: Carga un nuevo proyecto
+      parameters:
+        -
+          name: project
+          in: body
+          description: Nuevo proyecto a cargar en el sistema
+          required: true
+          schema: 
+            $ref: '#/definitions/Project'
+      responses:
+        200:
+          description: Se creó exitosamente el proyecto
+        409:
+          description: Hubo un conflicto al insertar el proyecto
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      description: Modifica la información del proyecto
+      parameters:
+        -
+          name: project
+          in: body
+          required: true
+          description: Información del proyecto a modificar
+          schema:
+            $ref: '#/definitions/Project'
+      responses:
+        200:
+          description: Se modificó exitosamente el proyecto
+        404:
+          description: No se consiguió el proyecto a modificar
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: No se pudo hacer la modificación
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      
+  /project/{pid}:
+    get:
+      description: Obtener información del proyecto
+      parameters:
+        -
+          name: pid
+          in: path
+          type: integer
+          description: identificador del proyecto a consultar
+          required: true
+      responses:
+        200:
+          description: Se consiguió el proyecto y se devuelve la información solicitada
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Project'
+        404:
+          description: No se encontró el proyecto solicitado
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: Ocurrió algo inesperado
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    delete:
+      description: Borra un proyecto
+      parameters:
+        -
+          name: pid
+          in: path
+          type: integer
+          description: identificador del proyecto a eliminar
+          required: true
+      responses:
+        200:
+          description: OK
+        404:
+          description: No se consiguió el proyecto
+    
+  /project/task:
+    put:
+      description: Carga una nueva tarea
+      parameters:
+        -
+          name: project
+          in: body
+          description: Nueva tarea a cargar en el sistema
+          required: true
+          schema: 
+            $ref: '#/definitions/Task'
+      responses:
+        200:
+          description: Se creó exitosamente la tarea
+        409:
+          description: Hubo un conflicto al crear la tarea
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+    post:
+      description: Modifica la información de la tarea
+      parameters:
+        -
+          name: taks
+          in: body
+          required: true
+          description: Información de la tarea a modificar
+          schema:
+            $ref: '#/definitions/Task'
+      responses:
+        200:
+          description: Se modificó exitosamente el proyecto
+        404:
+          description: No se consiguió la tarea a modificar
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        default:
+          description: No se pudo hacer la modificación
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+            
+  /project/task/{tid}:
+    delete:
+      description: Borra una tarea
+      parameters:
+        -
+          name: tid
+          in: path
+          type: integer
+          description: identificador de la tarea a eliminar
+          required: true
+      responses:
+        200:
+          description: OK
+        404:
+          description: No se consiguió la tarea
+    
+  /project/task/{tid}/{status}:
+    post:
+      description: marca si una tarea está lista o no
+      parameters:
+        -
+          name: tid
+          in: path
+          type: integer
+          description: identificador de la tarea a eliminar
+          required: true
+        -  
+          name: status
+          in: path
+          type: boolean
+          description: Status a setear en la tarea
+          required: true
+      responses:
+        200:
+          description: OK
+        404:
+          description: No se consiguió la tarea
+      
+  /project/user/{name}:
+    get:
+      description: Obtener las tareas que tiene asignando el usuario {name}
+      parameters:
+        -
+          name: name
+          in: path
+          description: Nombre del usuario al que se le quiere buscar las tareas
+          type: string
+          required: true
+      responses:
+        200:
+          description: Se consiguió el usuario y se devuelve la lista de tareas
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Task'
+        404:
+          description: No se consiguió la tarea
+          
+
+
+definitions:
+  Project:
+    type: object
+    properties:
+      pid:
+        type: integer
+        description: Identificador interno del proyecto
+      name:
+        type: string
+        description: Nombre del proyecto
+      leader:
+        type: string
+        description: Usuario líder del proyecto
+      start:
+        type: string
+        description: fecha de inicio del proyecto
+      finish:
+        type: string
+        description: fecha de entrega del proyecto
+      tasks:
+        type: array
+        description: tareas del proyecto
+        items:
+          $ref: '#/definitions/Task'
+  
+  Task:
+    type: object
+    properties:
+      tid:
+        type: integer
+        description: Identificador de la tarea
+      name:
+        type: string
+        description: Nombre de la tarea
+      user:
+        type: string
+        description: Usuario asignado a la tarea
+      completed:
+        type: boolean
+        description: ¿Está lista la tarea?
+
+  ErrorResponse:
+    type: object
+    required:
+    - error
+    properties:
+      error:
+        type: string
+        
